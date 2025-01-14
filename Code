@@ -1,0 +1,51 @@
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import joblib
+
+# Step 1: Load the training data
+training_data_file = "RandomForrest.csv"  # Replace with your training data file path
+training_data = pd.read_csv(training_data_file)
+
+# Separate features and target
+features = training_data.columns[:-1]  # All columns except the last one
+target = training_data.columns[-1]     # The last column
+X = training_data[features]  # Feature columns
+y = training_data[target]    # Target column
+
+# Step 2: Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 3: Train the Random Forest model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Step 4: Evaluate the model on the test data
+y_pred = model.predict(X_test)
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
+# Step 5: Save the trained model
+model_file = "cloud_phase_model.pkl"
+joblib.dump(model, model_file)
+print(f"Trained model saved to '{model_file}'.")
+
+# Step 6: Load new data for prediction
+new_data_file = "RandomForrest_newData.csv"  # Replace with your new data file path
+new_data = pd.read_csv(new_data_file)
+
+# Step 7: Make predictions for each row
+predictions = model.predict(new_data)
+
+# Step 8: Add predictions to the new dataset
+new_data["Predicted_Cloud_Phase"] = predictions
+
+# Step 9: Print predictions
+print("Predictions for each row:")
+print(new_data)
+
+# Step 10: Save the predictions to a new file
+output_file = "Predicted_Cloud_Phases.csv"
+new_data.to_csv(output_file, index=False)
+print(f"Predictions saved to '{output_file}'.")
